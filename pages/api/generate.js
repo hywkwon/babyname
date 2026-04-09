@@ -67,12 +67,32 @@ async function recordStats(gender, birthType) {
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { gender, birthType, year, month, day, hour, min, last, first, genOpt, genName } = req.body;
+  const { gender, birthType, year, month, day, hour, min, last, first, genOpt, genName, dateKnown, sichu, dayMode, week } = req.body;
+
+  let dateInfo = "";
+  if (birthType === "출생 예정") {
+    if (dateKnown === "yes") {
+      // 알고 있어요: 정확한 날짜+시간
+      dateInfo = `출생예정일시:${year}년 ${parseInt(month)}월 ${parseInt(day)}일 ${parseInt(hour)}시 ${parseInt(min)}분`;
+      dateInfo += "\n[출생예정 추정 분석. 리포트 기본정보에 출생예정 분석임을 명시]";
+    } else {
+      // 모르거나 미정: 년월 + 날짜or주차 + 시주
+      if (dayMode === "week" && week) {
+        dateInfo = `출생예정시기:${year}년 ${parseInt(month)}월 ${week}`;
+      } else {
+        dateInfo = `출생예정시기:${year}년 ${parseInt(month)}월 ${parseInt(day)}일`;
+      }
+      dateInfo += sichu ? ` 희망시주:${sichu}` : " 시주미정(평균값 적용)";
+      dateInfo += "\n[출생예정 추정 분석. 리포트 기본정보에 출생예정 분석임을 명시]";
+    }
+  } else {
+    dateInfo = `출생일시:${year}년 ${parseInt(month)}월 ${parseInt(day)}일 ${parseInt(hour)}시 ${parseInt(min)}분`;
+  }
 
   const msg =
     "아래 정보로 이름 해설 리포트를 작성해주세요.\n" +
     `성별:${gender} 출생구분:${birthType}\n` +
-    `출생일시:${year}년 ${parseInt(month)}월 ${parseInt(day)}일 ${parseInt(hour)}시 ${parseInt(min)}분\n` +
+    dateInfo + "\n" +
     `성:${last} 이름:${first} 전체성명:${last}${first}\n` +
     `돌림자여부:${genOpt} 돌림자:${genOpt === "사용함" && genName ? genName : "없음"}`;
 
