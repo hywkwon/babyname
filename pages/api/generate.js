@@ -46,6 +46,24 @@ const SYSTEM_PROMPT =
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+async function recordStats(gender, birthType) {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) return;
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const base = `${UPSTASH_URL}`;
+    const headers = { Authorization: `Bearer ${UPSTASH_TOKEN}`, "Content-Type": "application/json" };
+    await Promise.all([
+      fetch(`${base}/incr/stats:total`, { method: "POST", headers }),
+      fetch(`${base}/incr/stats:daily:${today}`, { method: "POST", headers }),
+      fetch(`${base}/hincrby/stats:gender/${gender}/1`, { method: "POST", headers }),
+      fetch(`${base}/hincrby/stats:birthType/${birthType}/1`, { method: "POST", headers }),
+    ]);
+  } catch (e) { /* stats 오류는 무시 */ }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
@@ -80,6 +98,7 @@ export default async function handler(req, res) {
       }
     }
     const text = result.content.map((b) => b.text || "").join("");
+    await recordStats(gender, birthType);
     res.status(200).json({ text });
   } catch (err) {
     console.error(err);
