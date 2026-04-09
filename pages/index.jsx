@@ -102,16 +102,16 @@ function MdContent({ md }) {
   function flushTbl() {
     if (!tblH.length) return;
     nodes.push(
-      <div key={"tbl" + i} style={{ overflowX:"auto", margin:"12px 0 16px", borderRadius:8, border:"1px solid " + C.border, overflow:"hidden" }}>
-        <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
+      <div key={"tbl" + i} style={{ overflowX:"auto", margin:"12px 0 16px", borderRadius:8, border:"1px solid " + C.border }}>
+        <table style={{ width:"100%", minWidth:"100%", borderCollapse:"collapse", fontSize:12 }}>
           <thead>
-            <tr>{tblH.map((h, j) => <th key={j} style={{ background:C.deep, color:"white", padding:"9px 8px", textAlign:"center", fontWeight:600, fontSize:11 }}>{h}</th>)}</tr>
+            <tr>{tblH.map((h, j) => <th key={j} style={{ background:C.deep, color:"white", padding:"8px 6px", textAlign:"center", fontWeight:600, fontSize:11 }}>{h}</th>)}</tr>
           </thead>
           <tbody>
             {tblR.map((row, ri2) => (
               <tr key={ri2}>
                 {row.map((cell, ci) => (
-                  <td key={ci} style={{ padding:"9px 12px", borderBottom:"1px solid " + C.borderL, color:C.text, lineHeight:1.5, background:ri2%2===1?C.bg:C.card, fontSize:13, verticalAlign:"middle", textAlign:"center", whiteSpace:"nowrap", padding:"10px 8px" }}
+                  <td key={ci} style={{ padding:"9px 12px", borderBottom:"1px solid " + C.borderL, color:C.text, lineHeight:1.5, background:ri2%2===1?C.bg:C.card, fontSize:12, verticalAlign:"middle", textAlign:"center", whiteSpace:"nowrap", padding:"8px 6px" }}
                     dangerouslySetInnerHTML={{ __html: ri(cell) }} />
                 ))}
               </tr>
@@ -203,7 +203,7 @@ function Orb({ size, interactive }) {
 }
 
 function Card({ children, style, className }) {
-  return <div className={className||""} style={{ background:C.card, borderRadius:14, padding:"1.25rem", border:"1px solid "+C.border, marginBottom:12, ...(style||{}) }}>{children}</div>;
+  return <div className={className||""} style={{ background:C.card, borderRadius:14, padding:"1.125rem 1rem", border:"1px solid "+C.border, marginBottom:10, ...(style||{}) }}>{children}</div>;
 }
 
 function SectionHeader({ Ic, title, hi }) {
@@ -327,6 +327,12 @@ const CSS_STYLES = [
     "@keyframes pulse { 0%,100% { opacity:.45 } 50% { opacity:1 } }",
     ".fu0{animation:fadeUp .35s ease both}.fu1{animation:fadeUp .35s .07s ease both}",
     ".fu2{animation:fadeUp .35s .14s ease both}.fu3{animation:fadeUp .35s .21s ease both}.fu4{animation:fadeUp .35s .28s ease both}",
+    "@media (max-width: 640px) {",
+    "  body { font-size: 14px; }",
+    "  table { font-size: 11px !important; }",
+    "  th, td { padding: 6px 6px !important; font-size: 11px !important; word-break: keep-all; }",
+    "  .report-card { padding: 1rem 0.875rem !important; }",
+    "}",
   ].join("\n");
 
 export default function App() {
@@ -521,14 +527,14 @@ export default function App() {
               <IC.Back /> 새로운 이름 분석하기
             </button>
           </div>
-          <div style={{ maxWidth:600, margin:"0 auto", padding:"1.5rem 1.25rem 5rem" }}>
+          <div style={{ maxWidth:600, margin:"0 auto", padding:"1rem 0.875rem 4rem" }}>
             <div className="fu0" style={{ background:C.deep, color:"white", borderRadius:16, padding:"2rem 1.75rem", marginBottom:14, position:"relative", overflow:"hidden" }}>
               <div style={{ position:"absolute", top:-50, right:-50, width:200, height:200, borderRadius:"50%", background:"rgba(201,151,58,.12)" }} />
               <div style={{ position:"absolute", bottom:-30, left:-30, width:100, height:100, borderRadius:"50%", background:"rgba(139,58,58,.2)" }} />
               <div style={{ position:"absolute", top:0, left:0, width:"100%", height:3, background:"linear-gradient(90deg,#C9973A,transparent)" }} />
               <div style={{ position:"relative" }}>
                 <div style={{ fontSize:11, color:"rgba(255,255,255,.4)", letterSpacing:"0.15em", textTransform:"uppercase", marginBottom:10 }}>이름 해설 리포트 · {form.gender}</div>
-                <div style={{ fontSize:40, fontWeight:900, letterSpacing:6, marginBottom:16, lineHeight:1.1 }}>{form.last}{form.first}</div>
+                <div style={{ fontSize:"clamp(28px, 8vw, 40px)", fontWeight:900, letterSpacing:"clamp(2px, 2vw, 6px)", marginBottom:16, lineHeight:1.1 }}>{form.last}{form.first}</div>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
                   {[form.birthType, form.year+"년 "+parseInt(form.month)+"월 "+parseInt(form.day)+"일", parseInt(form.hour)+"시 "+parseInt(form.min)+"분"].map((t,i)=>(
                     <span key={i} style={{ padding:"4px 11px", borderRadius:999, fontSize:12, fontWeight:500, background:"rgba(255,255,255,.1)", color:"rgba(255,255,255,.75)" }}>{t}</span>
