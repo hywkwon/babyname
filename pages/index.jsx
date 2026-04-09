@@ -102,16 +102,16 @@ function MdContent({ md }) {
   function flushTbl() {
     if (!tblH.length) return;
     nodes.push(
-      <div key={"tbl" + i} style={{ overflowX:"auto", margin:"12px 0 16px", borderRadius:8, border:"1px solid " + C.border }}>
+      <div key={"tbl" + i} style={{ overflowX:"auto", WebkitOverflowScrolling:"touch", margin:"12px 0 16px", borderRadius:8, border:"1px solid " + C.border }}>
         <table style={{ width:"100%", minWidth:"100%", borderCollapse:"collapse", fontSize:12 }}>
           <thead>
-            <tr>{tblH.map((h, j) => <th key={j} style={{ background:C.deep, color:"white", padding:"8px 6px", textAlign:"center", fontWeight:600, fontSize:11 }}>{h}</th>)}</tr>
+            <tr>{tblH.map((h, j) => <th key={j} style={{ background:C.deep, color:"white", padding:"7px 6px", textAlign:"center", fontWeight:600, fontSize:11, whiteSpace:"nowrap" }}>{h}</th>)}</tr>
           </thead>
           <tbody>
             {tblR.map((row, ri2) => (
               <tr key={ri2}>
                 {row.map((cell, ci) => (
-                  <td key={ci} style={{ padding:"9px 12px", borderBottom:"1px solid " + C.borderL, color:C.text, lineHeight:1.5, background:ri2%2===1?C.bg:C.card, fontSize:12, verticalAlign:"middle", textAlign:"center", whiteSpace:"nowrap", padding:"8px 6px" }}
+                  <td key={ci} style={{ padding:"9px 12px", borderBottom:"1px solid " + C.borderL, color:C.text, lineHeight:1.5, background:ri2%2===1?C.bg:C.card, fontSize:12, verticalAlign:"middle", textAlign:"center", padding:"7px 5px", wordBreak:"keep-all" }}
                     dangerouslySetInnerHTML={{ __html: ri(cell) }} />
                 ))}
               </tr>
@@ -203,7 +203,7 @@ function Orb({ size, interactive }) {
 }
 
 function Card({ children, style, className }) {
-  return <div className={className||""} style={{ background:C.card, borderRadius:14, padding:"1.125rem 1rem", border:"1px solid "+C.border, marginBottom:10, ...(style||{}) }}>{children}</div>;
+  return <div className={className||""} style={{ background:C.card, borderRadius:12, padding:"1rem 0.875rem", border:"1px solid "+C.border, marginBottom:10, ...(style||{}) }}>{children}</div>;
 }
 
 function SectionHeader({ Ic, title, hi }) {
@@ -255,10 +255,14 @@ function FieldInput({ label, value, onChange, placeholder, maxLength }) {
 function SelectField({ value, onChange, options }) {
   return (
     <div style={{ position:"relative" }}>
-      <select value={value} onChange={onChange} style={{ width:"100%", padding:"11px 28px 11px 12px", border:"1.5px solid "+C.border, borderRadius:10, fontSize:14, color:C.text, background:C.card, fontFamily:"inherit", outline:"none", appearance:"none", cursor:"pointer" }}>
+      <select value={value} onChange={onChange} style={{ width:"100%", padding:"11px 32px 11px 12px", border:"1.5px solid "+C.border, borderRadius:10, fontSize:14, color:C.text, background:C.card, fontFamily:"inherit", outline:"none", appearance:"none", cursor:"pointer" }}>
         {options.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}
       </select>
-      <div style={{ position:"absolute", right:10, top:"50%", transform:"translateY(-50%)", pointerEvents:"none", color:C.hint, fontSize:10 }}>&#9662;</div>
+      <div style={{ position:"absolute", right:10, top:"50%", transform:"translateY(-50%) rotate(0deg)", pointerEvents:"none", display:"flex", alignItems:"center" }}>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M3 5L7 9L11 5" stroke={C.muted} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
     </div>
   );
 }
@@ -320,24 +324,20 @@ function SummaryCard({ s }) {
 
 const CSS_STYLES = [
     "*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }",
-    "body { font-family: 'Apple SD Gothic Neo', -apple-system, 'Malgun Gothic', sans-serif; background: " + C.bg + "; color: " + C.text + "; }",
+    "body { font-family: 'Apple SD Gothic Neo', -apple-system, 'Malgun Gothic', sans-serif; background: " + C.bg + "; color: " + C.text + "; -webkit-text-size-adjust: 100%; }",
+    "table { border-collapse: collapse; }",
+    "* { min-width: 0; }",
     "select, button, input { font-family: inherit; }",
     "@keyframes fadeUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }",
     "@keyframes orbFloat { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-10px) } }",
     "@keyframes pulse { 0%,100% { opacity:.45 } 50% { opacity:1 } }",
     ".fu0{animation:fadeUp .35s ease both}.fu1{animation:fadeUp .35s .07s ease both}",
     ".fu2{animation:fadeUp .35s .14s ease both}.fu3{animation:fadeUp .35s .21s ease both}.fu4{animation:fadeUp .35s .28s ease both}",
-    "@media (max-width: 640px) {",
-    "  body { font-size: 14px; }",
-    "  table { font-size: 11px !important; }",
-    "  th, td { padding: 6px 6px !important; font-size: 11px !important; word-break: keep-all; }",
-    "  .report-card { padding: 1rem 0.875rem !important; }",
-    "}",
   ].join("\n");
 
 export default function App() {
   const [step, setStep]       = useState(1);
-  const [form, setForm]       = useState({ gender:"남아", birthType:"실제 출생", year:"2025", month:"01", day:"01", hour:"09", min:"00", last:"", first:"", genOpt:"미사용", genName:"" });
+  const [form, setForm]       = useState({ gender:"남아", birthType:"실제 출생", year:"2025", month:"01", day:"01", hour:"09", min:"00", last:"", first:"", genOpt:"미사용", genName:"", dateKnown:"yes", sichu:"", dayMode:"day", week:"" });
   const [result, setResult]   = useState(null);
   const [error, setError]     = useState("");
   const [valErr, setValErr]   = useState("");
@@ -349,7 +349,7 @@ export default function App() {
     const el = document.createElement("style");
     el.textContent = CSS_STYLES;
     document.head.appendChild(el);
-    return () => document.head.removeChild(el);
+    return () => { if (document.head.contains(el)) document.head.removeChild(el); };
   }, []);
 
   useEffect(()=>{
@@ -380,12 +380,13 @@ export default function App() {
           hour: form.hour, min: form.min,
           last: form.last, first: form.first,
           genOpt: form.genOpt, genName: form.genName,
+          dateKnown: form.dateKnown, sichu: form.sichu,
+          dayMode: form.dayMode, week: form.week,
         }),
       });
       const data = await res.json();
       if (!res.ok) {
         if (res.status === 529 || String(data.error || "").includes("overload")) { setError("overloaded"); setStep(3); return; }
-        if (String(data.error || "").includes("exceeded")) { setError("exceeded_limit"); setStep(3); return; }
         throw new Error(data.error || "API 오류");
       }
       const parsed = parseReport(data.text || "");
@@ -397,7 +398,7 @@ export default function App() {
   };
   const restart = () => {
     setStep(1); setResult(null); setError(""); setValErr("");
-    setForm({ gender:"남아", birthType:"실제 출생", year:"2025", month:"01", day:"01", hour:"09", min:"00", last:"", first:"", genOpt:"미사용", genName:"" });
+    setForm({ gender:"남아", birthType:"실제 출생", year:"2025", month:"01", day:"01", hour:"09", min:"00", last:"", first:"", genOpt:"미사용", genName:"", dateKnown:"yes", sichu:"", dayMode:"day", week:"" });
   };
 
   const yrs = Array.from({length:11},(_,i)=>({v:String(2020+i),l:(2020+i)+"년"}));
@@ -410,7 +411,7 @@ export default function App() {
 
   return (
     <>
-      <Head><title>베이비네임</title><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="description" content="오행을 기반으로 쉽고 전문적인 작명 해설"/></Head>
+      <Head><title>베이비네임</title><meta name="viewport" content="width=device-width,initial-scale=1"/></Head>
       
       {(step===1||step===2||step===3) && (
         <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"2rem 1.25rem", background:C.bg }}>
@@ -444,19 +445,113 @@ export default function App() {
           {step===2 && (
             <div className="fu0" style={{ textAlign:"center", width:"100%", maxWidth:420 }}>
               <div style={{ animation:"orbFloat 4s ease-in-out infinite", marginBottom:"1.5rem" }}><Orb size={70} /></div>
-              <h2 style={{ fontSize:22, fontWeight:800, color:C.deep, marginBottom:28, letterSpacing:"-0.02em" }}>출생일시와 성명을 입력해주세요</h2>
-              <div style={{ marginBottom:16, textAlign:"left" }}>
-                <div style={{ fontSize:11, color:C.hint, fontWeight:600, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.07em" }}>출생일시</div>
-                <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr", gap:8, marginBottom:8 }}>
-                  <SelectField value={form.year}  onChange={e=>upd("year", e.target.value)}  options={yrs} />
-                  <SelectField value={form.month} onChange={e=>upd("month",e.target.value)} options={mos} />
-                  <SelectField value={form.day}   onChange={e=>upd("day",  e.target.value)}   options={dys} />
+              <h2 style={{ fontSize:20, fontWeight:800, color:C.deep, marginBottom:24, letterSpacing:"-0.02em" }}>
+                {form.birthType === "출생 예정" ? "출생 예정 정보를 입력해주세요" : "출생일시와 성명을 입력해주세요"}
+              </h2>
+
+              {/* 실제 출생 */}
+              {form.birthType === "실제 출생" && (
+                <div style={{ marginBottom:16, textAlign:"left" }}>
+                  <div style={{ fontSize:11, color:C.hint, fontWeight:600, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.07em" }}>출생일시</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr", gap:8, marginBottom:8 }}>
+                    <SelectField value={form.year}  onChange={e=>upd("year", e.target.value)}  options={yrs} />
+                    <SelectField value={form.month} onChange={e=>upd("month",e.target.value)} options={mos} />
+                    <SelectField value={form.day}   onChange={e=>upd("day",  e.target.value)}   options={dys} />
+                  </div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+                    <SelectField value={form.hour} onChange={e=>upd("hour",e.target.value)} options={hrs} />
+                    <SelectField value={form.min}  onChange={e=>upd("min", e.target.value)}  options={mns} />
+                  </div>
                 </div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-                  <SelectField value={form.hour} onChange={e=>upd("hour",e.target.value)} options={hrs} />
-                  <SelectField value={form.min}  onChange={e=>upd("min", e.target.value)}  options={mns} />
+              )}
+
+              {/* 출생 예정 */}
+              {form.birthType === "출생 예정" && (
+                <div style={{ textAlign:"left" }}>
+                  {/* 예정일 알고 있는지 */}
+                  <div style={{ marginBottom:16 }}>
+                    <div style={{ fontSize:11, color:C.hint, fontWeight:600, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.07em" }}>예정일을 알고 계신가요?</div>
+                    <div style={{ display:"flex", gap:8 }}>
+                      <TextToggle label="알고 있어요" selected={form.dateKnown==="yes"} onClick={()=>upd("dateKnown","yes")} />
+                      <TextToggle label="모르거나 미정이에요" selected={form.dateKnown==="no"} onClick={()=>upd("dateKnown","no")} />
+                    </div>
+                  </div>
+
+                  {/* 알고 있을 때 - 기존 실제출생과 동일한 년월일+시분 */}
+                  {form.dateKnown === "yes" && (
+                    <div style={{ marginBottom:16 }}>
+                      <div style={{ fontSize:11, color:C.hint, fontWeight:600, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.07em" }}>출생 예정일시</div>
+                      <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr", gap:8, marginBottom:8 }}>
+                        <SelectField value={form.year}  onChange={e=>upd("year", e.target.value)}  options={yrs} />
+                        <SelectField value={form.month} onChange={e=>upd("month",e.target.value)} options={mos} />
+                        <SelectField value={form.day}   onChange={e=>upd("day",  e.target.value)}   options={dys} />
+                      </div>
+                      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+                        <SelectField value={form.hour} onChange={e=>upd("hour",e.target.value)} options={hrs} />
+                        <SelectField value={form.min}  onChange={e=>upd("min", e.target.value)}  options={mns} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 모를 때 - 년월일 + 시주 선택 */}
+                  {form.dateKnown === "no" && (
+                    <div style={{ marginBottom:16 }}>
+                      <div style={{ fontSize:11, color:C.hint, fontWeight:600, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.07em" }}>출생 예정 시기</div>
+                      <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr", gap:8, marginBottom:10 }}>
+                        <SelectField value={form.year}  onChange={e=>upd("year", e.target.value)}  options={yrs} />
+                        <SelectField value={form.month} onChange={e=>upd("month",e.target.value)} options={mos} />
+                      </div>
+                      <div style={{ display:"flex", gap:6, marginBottom:10 }}>
+                        <button onClick={()=>upd("dayMode","day")} style={{ flex:1, padding:"8px", borderRadius:8, border:"1.5px solid "+(form.dayMode==="day"?C.primary:C.border), background:form.dayMode==="day"?C.priL:C.card, fontSize:12, fontWeight:600, color:form.dayMode==="day"?C.primary:C.muted, cursor:"pointer", fontFamily:"inherit" }}>날짜 선택</button>
+                        <button onClick={()=>upd("dayMode","week")} style={{ flex:1, padding:"8px", borderRadius:8, border:"1.5px solid "+(form.dayMode==="week"?C.primary:C.border), background:form.dayMode==="week"?C.priL:C.card, fontSize:12, fontWeight:600, color:form.dayMode==="week"?C.primary:C.muted, cursor:"pointer", fontFamily:"inherit" }}>주차 선택</button>
+                      </div>
+                      {form.dayMode === "day" && (
+                        <div style={{ marginBottom:16 }}>
+                          <SelectField value={form.day} onChange={e=>upd("day",e.target.value)} options={dys} />
+                        </div>
+                      )}
+                      {form.dayMode === "week" && (
+                        <div style={{ display:"flex", gap:6, marginBottom:16 }}>
+                          {["1주차","2주차","3주차","4주차","5주차"].map(w=>(
+                            <button key={w} onClick={()=>upd("week",form.week===w?"":w)}
+                              style={{ flex:1, padding:"9px 4px", borderRadius:8, border:"1.5px solid "+(form.week===w?C.primary:C.border), background:form.week===w?C.priL:C.card, fontSize:12, fontWeight:600, color:form.week===w?C.primary:C.muted, cursor:"pointer", fontFamily:"inherit" }}>
+                              {w}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      <div style={{ fontSize:11, color:C.hint, fontWeight:600, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.07em" }}>출산 희망 시간대 (선택)</div>
+                      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+                        {[
+                          {label:"자시(子)", time:"23~01시", v:"자시"},
+                          {label:"축시(丑)", time:"01~03시", v:"축시"},
+                          {label:"인시(寅)", time:"03~05시", v:"인시"},
+                          {label:"묘시(卯)", time:"05~07시", v:"묘시"},
+                          {label:"진시(辰)", time:"07~09시", v:"진시"},
+                          {label:"사시(巳)", time:"09~11시", v:"사시"},
+                          {label:"오시(午)", time:"11~13시", v:"오시"},
+                          {label:"미시(未)", time:"13~15시", v:"미시"},
+                          {label:"신시(申)", time:"15~17시", v:"신시"},
+                          {label:"유시(酉)", time:"17~19시", v:"유시"},
+                          {label:"술시(戌)", time:"19~21시", v:"술시"},
+                          {label:"해시(亥)", time:"21~23시", v:"해시"},
+                        ].map(s => (
+                          <button key={s.v} onClick={()=>upd("sichu", form.sichu===s.v ? "" : s.v)}
+                            style={{ padding:"8px 6px", borderRadius:8, border:"1.5px solid "+(form.sichu===s.v?C.primary:C.border), background:form.sichu===s.v?C.priL:C.card, cursor:"pointer", fontFamily:"inherit", transition:"all .15s" }}>
+                            <div style={{ fontSize:13, fontWeight:700, color:form.sichu===s.v?C.primary:C.ink }}>{s.label}</div>
+                            <div style={{ fontSize:10, color:C.hint, marginTop:2 }}>{s.time}</div>
+                          </button>
+                        ))}
+                      </div>
+                      <button onClick={()=>upd("sichu","")} style={{ width:"100%", marginTop:6, padding:"8px", borderRadius:8, border:"1.5px solid "+(form.sichu===""?C.primary:C.border), background:form.sichu===""?C.priL:C.card, fontSize:12, color:form.sichu===""?C.primary:C.muted, cursor:"pointer", fontFamily:"inherit" }}>
+                        시간을 아직 모르거나 고려중이에요
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
+
+              {/* 성명 (공통) */}
               <div style={{ marginBottom:24, textAlign:"left" }}>
                 <div style={{ fontSize:11, color:C.hint, fontWeight:600, marginBottom:10, textTransform:"uppercase", letterSpacing:"0.07em" }}>성명</div>
                 <div style={{ display:"grid", gridTemplateColumns:"90px 1fr", gap:10 }}>
@@ -464,6 +559,7 @@ export default function App() {
                   <FieldInput label="이름" value={form.first} onChange={e=>upd("first",e.target.value.slice(0,3))} placeholder="길동" maxLength={3} />
                 </div>
               </div>
+
               <ErrBox msg={valErr} />
               <NavRow>
                 <SecBtn onClick={()=>{setValErr("");setStep(1);}}>← 이전</SecBtn>
@@ -527,14 +623,14 @@ export default function App() {
               <IC.Back /> 새로운 이름 분석하기
             </button>
           </div>
-          <div style={{ maxWidth:600, margin:"0 auto", padding:"1rem 0.875rem 4rem" }}>
+          <div style={{ maxWidth:600, margin:"0 auto", padding:"1rem 0.75rem 5rem" }}>
             <div className="fu0" style={{ background:C.deep, color:"white", borderRadius:16, padding:"2rem 1.75rem", marginBottom:14, position:"relative", overflow:"hidden" }}>
               <div style={{ position:"absolute", top:-50, right:-50, width:200, height:200, borderRadius:"50%", background:"rgba(201,151,58,.12)" }} />
               <div style={{ position:"absolute", bottom:-30, left:-30, width:100, height:100, borderRadius:"50%", background:"rgba(139,58,58,.2)" }} />
               <div style={{ position:"absolute", top:0, left:0, width:"100%", height:3, background:"linear-gradient(90deg,#C9973A,transparent)" }} />
               <div style={{ position:"relative" }}>
                 <div style={{ fontSize:11, color:"rgba(255,255,255,.4)", letterSpacing:"0.15em", textTransform:"uppercase", marginBottom:10 }}>이름 해설 리포트 · {form.gender}</div>
-                <div style={{ fontSize:"clamp(28px, 8vw, 40px)", fontWeight:900, letterSpacing:"clamp(2px, 2vw, 6px)", marginBottom:16, lineHeight:1.1 }}>{form.last}{form.first}</div>
+                <div style={{ fontSize:40, fontWeight:900, letterSpacing:6, marginBottom:16, lineHeight:1.1 }}>{form.last}{form.first}</div>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
                   {[form.birthType, form.year+"년 "+parseInt(form.month)+"월 "+parseInt(form.day)+"일", parseInt(form.hour)+"시 "+parseInt(form.min)+"분"].map((t,i)=>(
                     <span key={i} style={{ padding:"4px 11px", borderRadius:999, fontSize:12, fontWeight:500, background:"rgba(255,255,255,.1)", color:"rgba(255,255,255,.75)" }}>{t}</span>
