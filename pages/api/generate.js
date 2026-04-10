@@ -57,13 +57,15 @@ async function recordStats(gender, birthType) {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) return;
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const base = `${UPSTASH_URL}`;
+    const base = UPSTASH_URL;
     const headers = { Authorization: `Bearer ${UPSTASH_TOKEN}`, "Content-Type": "application/json" };
+    const g = encodeURIComponent(gender);
+    const b = encodeURIComponent(birthType);
     await Promise.all([
       fetch(`${base}/incr/stats:total`, { method: "POST", headers }),
       fetch(`${base}/incr/stats:daily:${today}`, { method: "POST", headers }),
-      fetch(`${base}/hincrby/stats:gender/${gender}/1`, { method: "POST", headers }),
-      fetch(`${base}/hincrby/stats:birthType/${birthType}/1`, { method: "POST", headers }),
+      fetch(`${base}/hincrby/stats:gender/${g}/1`, { method: "POST", headers }),
+      fetch(`${base}/hincrby/stats:birthType/${b}/1`, { method: "POST", headers }),
     ]);
   } catch (e) { /* stats 오류는 무시 */ }
 }
