@@ -329,7 +329,7 @@ const CSS_STYLES = [
     "* { min-width: 0; }",
     "select, button, input { font-family: inherit; }",
     "@keyframes fadeUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }",
-    "@keyframes orbFloat { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-10px) } }",
+    "@keyframes orbFloat { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-11.5px) } }",
     "@keyframes pulse { 0%,100% { opacity:.45 } 50% { opacity:1 } }",
     ".fu0{animation:fadeUp .35s ease both}.fu1{animation:fadeUp .35s .07s ease both}",
     "@media print {",
