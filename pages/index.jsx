@@ -332,6 +332,13 @@ const CSS_STYLES = [
     "@keyframes orbFloat { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-10px) } }",
     "@keyframes pulse { 0%,100% { opacity:.45 } 50% { opacity:1 } }",
     ".fu0{animation:fadeUp .35s ease both}.fu1{animation:fadeUp .35s .07s ease both}",
+    "@media print {",
+    "  .no-print { display: none !important; }",
+    "  .print-only { display: block !important; }",
+    "  body { background: white !important; }",
+    "  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }",
+    "  @page { margin: 15mm 12mm; size: A4; }",
+    "}",
     ".fu2{animation:fadeUp .35s .14s ease both}.fu3{animation:fadeUp .35s .21s ease both}.fu4{animation:fadeUp .35s .28s ease both}",
   ].join("\n");
 
@@ -618,9 +625,15 @@ export default function App() {
 
       {step==="result" && result && (
         <div style={{ background:C.bg, minHeight:"100vh" }}>
-          <div style={{ background:C.card, borderBottom:"1px solid "+C.border, padding:"13px 1.25rem" }}>
+          <div className="no-print" style={{ background:C.card, borderBottom:"1px solid "+C.border, padding:"13px 1.25rem", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <button onClick={restart} style={{ background:"none", border:"none", cursor:"pointer", fontSize:14, color:C.muted, display:"flex", alignItems:"center", gap:6, padding:0, fontFamily:"inherit" }}>
               <IC.Back /> 새로운 이름 분석하기
+            </button>
+            <button onClick={()=>window.print()} style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 14px", borderRadius:8, border:"1.5px solid "+C.border, background:C.card, color:C.text, fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 6V2h8v4M4 12H3a1 1 0 01-1-1V7a1 1 0 011-1h10a1 1 0 011 1v4a1 1 0 01-1 1h-1M4 9h8v5H4z"/>
+              </svg>
+              PDF 저장
             </button>
           </div>
           <div style={{ maxWidth:600, margin:"0 auto", padding:"1rem 0.75rem 5rem" }}>
