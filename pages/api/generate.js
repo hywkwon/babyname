@@ -48,8 +48,6 @@ const SYSTEM_PROMPT =
   "===말투===\n" +
   "~해요, ~입니다. '이 아이는'으로 지칭. 전통용어 뒤 쉬운말 병기. 숫자점수·한문투·예언투 금지";
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
 const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
@@ -57,17 +55,16 @@ async function recordStats(gender, birthType) {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) return;
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const base = UPSTASH_URL;
     const headers = { Authorization: `Bearer ${UPSTASH_TOKEN}`, "Content-Type": "application/json" };
     const g = encodeURIComponent(gender);
     const b = encodeURIComponent(birthType);
     await Promise.all([
-      fetch(`${base}/incr/stats:total`, { method: "POST", headers }),
-      fetch(`${base}/incr/stats:daily:${today}`, { method: "POST", headers }),
-      fetch(`${base}/hincrby/stats:gender/${g}/1`, { method: "POST", headers }),
-      fetch(`${base}/hincrby/stats:birthType/${b}/1`, { method: "POST", headers }),
+      fetch(`${UPSTASH_URL}/incr/stats:total`, { method: "POST", headers }),
+      fetch(`${UPSTASH_URL}/incr/stats:daily:${today}`, { method: "POST", headers }),
+      fetch(`${UPSTASH_URL}/hincrby/stats:gender/${g}/1`, { method: "POST", headers }),
+      fetch(`${UPSTASH_URL}/hincrby/stats:birthType/${b}/1`, { method: "POST", headers }),
     ]);
-  } catch (e) { /* stats 오류는 무시 */ }
+  } catch (e) {}
 }
 
 export default async function handler(req, res) {
@@ -78,11 +75,9 @@ export default async function handler(req, res) {
   let dateInfo = "";
   if (birthType === "출생 예정") {
     if (dateKnown === "yes") {
-      // 알고 있어요: 정확한 날짜+시간
       dateInfo = `출생예정일시:${year}년 ${parseInt(month)}월 ${parseInt(day)}일 ${parseInt(hour)}시 ${parseInt(min)}분`;
       dateInfo += "\n[출생예정 추정 분석. 리포트 기본정보에 출생예정 분석임을 명시]";
     } else {
-      // 모르거나 미정: 년월 + 날짜or주차 + 시주
       if (dayMode === "week" && week) {
         dateInfo = `출생예정시기:${year}년 ${parseInt(month)}월 ${week}`;
       } else {
@@ -102,45 +97,26 @@ export default async function handler(req, res) {
     `성:${last} 이름:${first} 전체성명:${last}${first}\n` +
     `돌림자여부:${genOpt} 돌림자:${genOpt === "사용함" && genName ? genName : "없음"}`;
 
-  const callAPI = () =>
-    client.messages.create({
+  try {
+    const result = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 8000,
+      max_tokens: 6500,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: msg }],
     });
-
-  try {
-    let result;
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        result = await callAPI();
-        break;
-      } catch (err) {
-        const isOverload = err.status === 529 ||
-          (err.message && err.message.toLowerCase().includes("overload"));
-        if (isOverload && attempt < 2) {
-          await sleep((attempt + 1) * 6000);
-          continue;
-        }
-        throw err;
-      }
-    }
     const text = result.content.map((b) => b.text || "").join("");
     await recordStats(gender, birthType);
     res.status(200).json({ text });
   } catch (err) {
     console.error(err);
     const status = err.status || 500;
-    const msg = err.message || "API 오류";
-    // overload
-    if (status === 529 || msg.toLowerCase().includes("overload")) {
+    const message = err.message || "API 오류";
+    if (status === 529 || message.toLowerCase().includes("overload")) {
       return res.status(529).json({ error: "overloaded" });
     }
-    // rate limit
-    if (status === 429 || msg.includes("rate")) {
+    if (status === 429) {
       return res.status(429).json({ error: "exceeded_limit" });
     }
-    res.status(status).json({ error: msg });
+    res.status(status).json({ error: message });
   }
 }
