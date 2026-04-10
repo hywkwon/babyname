@@ -391,9 +391,16 @@ export default function App() {
           dayMode: form.dayMode, week: form.week,
         }),
       });
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        // 서버가 JSON이 아닌 텍스트를 반환한 경우
+        setError("overloaded"); setStep(3); return;
+      }
       if (!res.ok) {
         if (res.status === 529 || String(data.error || "").includes("overload")) { setError("overloaded"); setStep(3); return; }
+        if (res.status === 429 || String(data.error || "").includes("exceeded")) { setError("exceeded_limit"); setStep(3); return; }
         throw new Error(data.error || "API 오류");
       }
       const parsed = parseReport(data.text || "");
