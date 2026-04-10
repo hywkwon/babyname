@@ -1,9 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-export const config = {
-  maxDuration: 60,
-};
-
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const SYSTEM_PROMPT =
