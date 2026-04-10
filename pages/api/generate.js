@@ -117,8 +117,11 @@ export default async function handler(req, res) {
         result = await callAPI();
         break;
       } catch (err) {
-        if (err.status === 529 || (err.message && err.message.includes("overloaded"))) {
-          if (attempt < 2) { await sleep((attempt + 1) * 6000); continue; }
+        const isOverload = err.status === 529 ||
+          (err.message && err.message.toLowerCase().includes("overload"));
+        if (isOverload && attempt < 2) {
+          await sleep((attempt + 1) * 6000);
+          continue;
         }
         throw err;
       }
@@ -128,6 +131,16 @@ export default async function handler(req, res) {
     res.status(200).json({ text });
   } catch (err) {
     console.error(err);
-    res.status(err.status || 500).json({ error: err.message || "API 오류" });
+    const status = err.status || 500;
+    const msg = err.message || "API 오류";
+    // overload
+    if (status === 529 || msg.toLowerCase().includes("overload")) {
+      return res.status(529).json({ error: "overloaded" });
+    }
+    // rate limit
+    if (status === 429 || msg.includes("rate")) {
+      return res.status(429).json({ error: "exceeded_limit" });
+    }
+    res.status(status).json({ error: msg });
   }
 }
